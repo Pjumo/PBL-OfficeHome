@@ -19,11 +19,11 @@ def fun():
     num_epochs = 20
     batch_size = 32
 
-    train_loader, test_loader = data_loader.dataloader('base', batch_size)
+    train_loader, test_loader = data_loader.dataloader('smote', batch_size)
 
     cnt_progress = len(train_loader) // 30
 
-    model_name = 'basic_resnet18'
+    model_name = 'smote_resnet18'
 
     class ResNetFeatureExtractor(nn.Module):
         def __init__(self):
@@ -150,6 +150,8 @@ def fun():
 
         val_mAP_class.append(mAP)
         val_mAP_domain.append(mAP_domain)
+
+        print(f'Val Category Acc: {total_val_acc_class:.4f}, Val Domain Acc: {total_val_acc_domain:.4f}')
 
     # Evaluate
     true_labels, pred_scores, true_labels_domain, pred_scores_domain = evaluate_model(model, test_loader)
