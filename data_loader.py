@@ -5,6 +5,7 @@ import torch
 import os
 import numpy as np
 from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
 
 
 class BasicDataset(Dataset):
@@ -62,7 +63,23 @@ def dataloader(sample_type, batch_size):
         smote = SMOTE()
         train_data_x, train_data_y = smote.fit_resample(train_data_flat, train_data_label)
 
-        train_data_x = train_data_x.reshape(-1, 224, 224, 3)
+        train_data_x = train_data_x.reshape(-1, 3, 224, 224)
+
+        train_data_resample = BasicDataset(torch.tensor(train_data_x), torch.tensor(train_data_y))
+        train_loader = torch.utils.data.DataLoader(dataset=train_data_resample, batch_size=batch_size, shuffle=True,
+                                                   num_workers=4)
+    elif sample_type == 'under_sampling':
+        train_data_label = train_data.targets
+        train_data_flat = []
+        for data in train_data:
+            train_data_flat.append(data[0].numpy())
+
+        train_data_flat = np.array(train_data_flat).reshape(-1, 224 * 224 * 3)
+
+        rus = RandomUnderSampler()
+        train_data_x, train_data_y = rus.fit_resample(train_data_flat, train_data_label)
+
+        train_data_x = train_data_x.reshape(-1, 3, 224, 224)
 
         train_data_resample = BasicDataset(torch.tensor(train_data_x), torch.tensor(train_data_y))
         train_loader = torch.utils.data.DataLoader(dataset=train_data_resample, batch_size=batch_size, shuffle=True,
